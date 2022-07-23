@@ -1,9 +1,9 @@
-import { Config } from './types';
+import { Config, GenerateElement } from './index';
 
 // React Component
-const componentTemplate = (name: string, fileName: string) => `import * as React from 'react';
+const generateComponent: GenerateElement = ({ name, siblings }) => `import * as React from 'react';
 
-import styles from './${fileName}.module.scss';
+import styles from './${siblings.styles.fileName}';
 
 type ${name}Props = {};
 
@@ -15,13 +15,13 @@ export default ${name};
 `;
 
 // Styles
-const stylesTemplate = (name: string) => `.${name} {}`;
+const generateStyles: GenerateElement = ({ name }) => `.${name} {}`;
 
 // Test
-const testTemplate = (name: string, fileName: string) => `import * as React from 'react';
+const generateTest: GenerateElement = ({ name, siblings }) => `import * as React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import ${name} from './${fileName}';
+import ${siblings.component.name} from './${siblings.component.fileName}';
 
 describe('${name}', () => {
   it('renders', () => {
@@ -35,19 +35,22 @@ describe('${name}', () => {
 
 const config: Config = {
   dir: 'src/components',
-  fileNameCase: 'kebab',
+  fileNameCase: 'firstUpper',
   elements: [
     {
-      template: componentTemplate,
-      fileNameExtension: 'tsx',
+      alias: 'component',
+      generateElement: generateComponent,
+      fileNameExtension: '.tsx',
     },
     {
-      template: stylesTemplate,
-      fileNameExtension: 'module.scss',
+      alias: 'styles',
+      generateElement: generateStyles,
+      fileNameExtension: '.module.scss',
     },
     {
-      template: testTemplate,
-      fileNameExtension: 'ts',
+      alias: 'test',
+      generateElement: generateTest,
+      fileNameExtension: '.test.ts',
     }
   ]
 };
