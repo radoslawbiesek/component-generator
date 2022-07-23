@@ -28,14 +28,19 @@ export type Config = {
 };
 
 function main() {
-  const name = process.argv[2];
+  const arg = process.argv[2];
 
-  if (!name) {
+  if (!arg) {
     throw new Error('Name is required.')
   }
 
+  const paths = arg.split('/');
+
+  const name = paths.slice(-1)[0];
+  const rest = paths.slice(0, -1);
+
   const convertedName = convertName(templateConfig.fileNameCase, name);
-  const fileDir = path.join(__dirname, templateConfig.dir, convertedName);
+  const fileDir = path.join(__dirname, templateConfig.dir, ...rest, convertedName);
 
   if (fs.existsSync(fileDir)) {
     throw new Error('A component with that name already exists.');
