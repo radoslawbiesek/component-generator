@@ -32,8 +32,7 @@ function main() {
   const type = process.argv[2];
 
   if (!type || !types.includes(type)) {
-    const message = `Invalid type. Possible choices: ${types.join(', ')}.`;
-    throw new Error(message);
+    handleError(`Invalid type. Possible choices: ${types.join(', ')}.`);
   }
 
   const config = templateConfig[type];
@@ -41,7 +40,7 @@ function main() {
   const arg = process.argv[3];
 
   if (!arg) {
-    throw new Error('Name is required.')
+    handleError('Name is required.');
   }
 
   const paths = arg.split('/');
@@ -53,7 +52,7 @@ function main() {
   const fileDir = path.join(__dirname, config.dir, ...rest, convertedName);
 
   if (fs.existsSync(fileDir)) {
-    throw new Error('A component with that name already exists.');
+    handleError('A component with that name already exists.');
   }
 
   fs.mkdirSync(fileDir, { recursive: true });
@@ -78,7 +77,8 @@ function main() {
 
     const fullPath = path.join(fileDir, fileMap[currentElement.alias].fileName);
     const content = currentElement.generateElement(templateObj);
-    fs.writeFile(fullPath, content, {}, (err) => { if (err) throw err; });
+    fs.writeFile(fullPath, content, {}, handleError);
+    console.log('Created: ', fullPath.replace(__dirname, ''));
   })
 }
 
@@ -91,4 +91,11 @@ function convertName(fileNameCase: FileNameCase, name: string) {
   }
 
   return _[`${fileNameCase}Case`](name);
+}
+
+function handleError(error: any) {
+  if (error) {
+    console.error('Error: ', error)
+    process.exit(1);
+  }
 }
