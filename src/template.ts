@@ -1,6 +1,6 @@
 import { Config, GenerateElement } from './index';
 
-// React Component
+// Component
 const generateComponent: GenerateElement = ({ name, siblings }) => `import * as React from 'react';
 
 import styles from './${siblings.styles.fileName}';
@@ -33,26 +33,49 @@ describe('${name}', () => {
 
 `;
 
+// Page Component
+const generatePage: GenerateElement = ({ name }) => `import * as React from 'react';
+
+const ${name} = () => {
+  return <div>${name} works!</div>;
+};
+
+export default ${name};
+`;
+
 const config: Config = {
-  dir: 'src/components',
-  fileNameCase: 'firstUpper',
-  elements: [
-    {
-      alias: 'component',
-      generateElement: generateComponent,
-      fileNameExtension: '.tsx',
-    },
-    {
-      alias: 'styles',
-      generateElement: generateStyles,
-      fileNameExtension: '.module.scss',
-    },
-    {
-      alias: 'test',
-      generateElement: generateTest,
-      fileNameExtension: '.test.ts',
-    }
-  ]
+  component: {
+    dir: 'src/components',
+    fileNameCase: 'kebab',
+    elements: [
+      {
+        alias: 'component',
+        generateElement: generateComponent,
+        fileNameExtension: '.tsx',
+      },
+      {
+        alias: 'styles',
+        generateElement: generateStyles,
+        fileNameExtension: '.module.scss',
+      },
+      {
+        alias: 'test',
+        generateElement: generateTest,
+        fileNameExtension: '.test.ts',
+      }
+    ]
+  },
+  page: {
+    dir: 'src/pages',
+    fileNameCase: 'kebab',
+    elements: [
+      {
+        alias: 'page',
+        generateElement: generatePage,
+        fileNameExtension: '.tsx',
+      },
+    ]
+  }
 };
 
 export default config;

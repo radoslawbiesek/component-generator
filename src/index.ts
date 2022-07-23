@@ -17,7 +17,7 @@ type ElementInfo = BaseElementInfo & {
 
 export type GenerateElement = (element: ElementInfo) => string;
 
-export type Config = {
+export type Config = Record<string, {
   dir: string;
   fileNameCase: FileNameCase;
   elements: {
@@ -25,10 +25,20 @@ export type Config = {
     generateElement: GenerateElement,
     fileNameExtension: string,
   }[];
-};
+}>;
 
 function main() {
-  const arg = process.argv[2];
+  const types = Object.keys(templateConfig);
+  const type = process.argv[2];
+
+  if (!type || !types.includes(type)) {
+    const message = `Invalid type. Possible choices: ${types.join(', ')}.`;
+    throw new Error(message);
+  }
+
+  const config = templateConfig[type];
+
+  const arg = process.argv[3];
 
   if (!arg) {
     throw new Error('Name is required.')
@@ -39,8 +49,8 @@ function main() {
   const name = paths.slice(-1)[0];
   const rest = paths.slice(0, -1);
 
-  const convertedName = convertName(templateConfig.fileNameCase, name);
-  const fileDir = path.join(__dirname, templateConfig.dir, ...rest, convertedName);
+  const convertedName = convertName(config.fileNameCase, name);
+  const fileDir = path.join(__dirname, config.dir, ...rest, convertedName);
 
   if (fs.existsSync(fileDir)) {
     throw new Error('A component with that name already exists.');
@@ -50,7 +60,7 @@ function main() {
 
   const fileMap: Record<string, BaseElementInfo> = {};
 
-  templateConfig.elements.forEach(element => {
+  config.elements.forEach(element => {
     const fileName = `${convertedName}${element.fileNameExtension}`;
 
     fileMap[element.alias] = {
@@ -60,7 +70,7 @@ function main() {
     }
   });
 
-  templateConfig.elements.forEach(currentElement => {
+  config.elements.forEach(currentElement => {
     const templateObj: ElementInfo = {
       ...fileMap[currentElement.alias],
       siblings: _.omit(fileMap, [currentElement.alias])
